@@ -11,7 +11,6 @@
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-    NSLog(@"SERGIO: registerWithRegistrar");
     //插件实例
     VolumeWatcherPlugin *instance = [VolumeWatcherPlugin pluginWithVolumeView: [[MPVolumeView alloc] init]];
     
@@ -22,7 +21,6 @@
     //事件处理
     FlutterEventChannel* eventChannel = [FlutterEventChannel eventChannelWithName:@"volume_watcher_event"
                                                                   binaryMessenger:[registrar messenger]];
-    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options: (NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial) context:nil];
     [eventChannel setStreamHandler:instance];
 }
 
@@ -123,6 +121,7 @@
     [[AVAudioSession sharedInstance] setActive:YES error:&error];
     // 添加监听系统音量变化
     
+    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options: NSKeyValueObservingOptionNew context:nil];
         
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onVolumeChanged:)
@@ -135,7 +134,9 @@
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    NSLog(@"SERGIO: observeValueForKeyPath");
+    if(!_eventSink){
+        return;
+    }
     if ([keyPath isEqualToString:@"outputVolume"]){
         float currentVol = [[AVAudioSession sharedInstance] outputVolume];
         _eventSink(@(currentVol));
