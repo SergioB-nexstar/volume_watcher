@@ -122,12 +122,7 @@
     // 添加监听系统音量变化
     
     [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options: NSKeyValueObservingOptionNew context:nil];
-        
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onVolumeChanged:)
-                                                 name:@"AVSystemController_SystemVolumeDidChangeNotification"
-                                               object:nil];
-    
+            
     // 需要开启该功能以便监听系统音量
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     return nil;
@@ -148,22 +143,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"AVSystemController_SystemVolumeDidChangeNotification" object:nil];
     _eventSink = nil;
     return nil;
-}
-
-/**
- * 监听音量变化
- */
-- (void)onVolumeChanged:(NSNotification *)notification {
-    if(!_eventSink){
-        return;
-    }
-    
-    if ([[notification.userInfo objectForKey:@"AVSystemController_AudioCategoryNotificationParameter"] isEqualToString:@"Audio/Video"]) {
-        if ([[notification.userInfo objectForKey:@"AVSystemController_AudioVolumeChangeReasonNotificationParameter"] isEqualToString:@"ExplicitVolumeChange"]) {
-            float volume = [[notification.userInfo objectForKey:@"AVSystemController_AudioVolumeNotificationParameter"] floatValue];
-            _eventSink(@(volume));
-        }
-    }
 }
 
 /**
