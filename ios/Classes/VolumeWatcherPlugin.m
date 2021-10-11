@@ -11,6 +11,7 @@
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+    NSLog(@"SERGIO: registerWithRegistrar");
     //插件实例
     VolumeWatcherPlugin *instance = [VolumeWatcherPlugin pluginWithVolumeView: [[MPVolumeView alloc] init]];
     
@@ -21,6 +22,7 @@
     //事件处理
     FlutterEventChannel* eventChannel = [FlutterEventChannel eventChannelWithName:@"volume_watcher_event"
                                                                   binaryMessenger:[registrar messenger]];
+    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options: (NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial) context:nil];
     [eventChannel setStreamHandler:instance];
 }
 
@@ -127,8 +129,6 @@
                                                  name:@"AVSystemController_SystemVolumeDidChangeNotification"
                                                object:nil];
     
-    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options: (NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial) context:nil];
-    
     // 需要开启该功能以便监听系统音量
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     return nil;
@@ -170,6 +170,7 @@
  */
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"AVSystemController_SystemVolumeDidChangeNotification" object:nil];
+    [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
 }
 
 @end
