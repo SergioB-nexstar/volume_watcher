@@ -120,13 +120,25 @@
     // 创建单例对象并且使其设置为活跃状态.
     [[AVAudioSession sharedInstance] setActive:YES error:&error];
     // 添加监听系统音量变化
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onVolumeChanged:)
-                                                 name:@"AVSystemController_SystemVolumeDidChangeNotification"
-                                               object:nil];
+    
+        
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(onVolumeChanged:)
+//                                                 name:@"AVSystemController_SystemVolumeDidChangeNotification"
+//                                               object:nil];
+    
+    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options: NSKeyValueObservingOptionNew context:nil];
+    
     // 需要开启该功能以便监听系统音量
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     return nil;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"outputVolume"]){
+        float currentVol = [[AVAudioSession sharedInstance] outputVolume];
+        _eventSink(@(currentVol));
+    }
 }
 
 //flutter不再接收
