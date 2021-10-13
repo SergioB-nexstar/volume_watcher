@@ -141,6 +141,7 @@
 //flutter不再接收
 - (FlutterError* _Nullable)onCancelWithArguments:(id _Nullable)arguments {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"AVSystemController_SystemVolumeDidChangeNotification" object:nil];
+    [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
     _eventSink = nil;
     return nil;
 }
