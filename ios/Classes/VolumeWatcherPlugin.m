@@ -140,16 +140,15 @@
 
 //flutter不再接收
 - (FlutterError* _Nullable)onCancelWithArguments:(id _Nullable)arguments {
-    [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
-    _eventSink = nil;
     return nil;
 }
 
 /**
  * 移除监听
  */
-- (void)dealloc {    
+- (void)dealloc {
     [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
+    _eventSink = nil;
 }
 
 @end
